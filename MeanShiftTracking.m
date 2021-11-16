@@ -1,22 +1,47 @@
 % Mean-shift tracking
-template = imread('img1.jpg');
-img2 = imread('img2.jpg');
-% The starting point need to be determined manually
-x0 = 150;
-y0 = 175;
+template = frames(:,:,:,1);
+img2 = frames(:,:,:,2);
+% The starting point and size need to be determined manually
+x0 = 385;
+y0 = 105;
+radius = 75;
 
 [row, col, ~] = size(template);
-modelNeighbor = circularNeighbors(template, x0, y0, 25);
-q_model = colorHistogram(modelNeighbor, 16, x0, y0, 25);
+modelNeighbor = circularNeighbors(template, x0, y0, radius);
+q_model = colorHistogram(modelNeighbor, 16, x0, y0, radius);
 
-subplot(1,3,1);
+subplot(1,2,1);
 imagesc(template);
 axis('equal');
 hold on;
-viscircles([x0, y0], 25);
+viscircles([x0, y0], radius);
 hold off;
 
+for i = 1:15    
+    testNeighbor = circularNeighbors(img2, x0, y0, radius);
+    p_test = colorHistogram(testNeighbor, 16, x0, y0, radius);
+    w = meanshiftWeights(testNeighbor, q_model, p_test, 16);
+    
+    xResult = 0;
+    yResult = 0;
+    [num,~] = size(testNeighbor);
+    for r = 1:num
+        xResult = xResult + testNeighbor(r, 1) * w(r, 1);
+        yResult = yResult + testNeighbor(r, 2) * w(r, 1);
+    end
 
+    x0 = xResult / sum(w, 'all');
+    y0 = yResult / sum(w, 'all');
+end
+lastXY = [x0 y0];
+disp(lastXY);
+
+subplot(1,2,2);
+imagesc(img2);
+axis('equal');
+hold on;
+viscircles(lastXY, radius);
+hold off;
 
 
 
@@ -63,4 +88,19 @@ function [hist] = colorHistogram(X, bins, x, y, h)
     end
     hist = hist / sum(hist, 'all');
 
+end
+
+
+function [w] = meanshiftWeights(X, q_model, p_test, bins)
+
+    [row, ~] = size(X);
+    w = double(zeros(row, 1));
+    for r = 1:row
+        red = ceil((X(r,3)+1)/bins);
+        green = ceil((X(r,4)+1)/bins);
+        blue = ceil((X(r,5)+1)/bins);
+        if p_test(red, green, blue) ~= 0
+            w(r) = sqrt(q_model(red, green, blue)/p_test(red, green, blue));
+        end
+    end
 end
