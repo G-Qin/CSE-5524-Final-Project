@@ -1,3 +1,0 @@
-% Read video from folder
-vid = VideoReader('Video/test.mp4');
-frames = 1

@@ -1,47 +1,58 @@
 % Mean-shift tracking
-template = frames(:,:,:,1);
-img2 = frames(:,:,:,2);
+% template = frames(:,:,:,1);
+% img2 = frames(:,:,:,2);
+mstFrames = zeros(size(frames));
 % The starting point and size need to be determined manually
-x0 = 385;
-y0 = 105;
-radius = 75;
+x0 = 695;
+y0 = 235;
+radius = 80;
 
-[row, col, ~] = size(template);
-modelNeighbor = circularNeighbors(template, x0, y0, radius);
-q_model = colorHistogram(modelNeighbor, 16, x0, y0, radius);
+[row, col, ~, fNum] = size(frames);
 
-subplot(1,2,1);
-imagesc(template);
-axis('equal');
-hold on;
-viscircles([x0, y0], radius);
-hold off;
+% mstFrames(:,:,:,1) = insertShape(template, 'circle', [x0 y0 radius], 'LineWidth', 5);
+% imwrite(mstFrames(:,:,:,1), 'MSTFrames/frame1.png');
+% imagesc(template);
+% axis('equal');
+% hold on;
+% viscircles([x0, y0], radius);
+% hold off;
 
-for i = 1:15    
-    testNeighbor = circularNeighbors(img2, x0, y0, radius);
-    p_test = colorHistogram(testNeighbor, 16, x0, y0, radius);
-    w = meanshiftWeights(testNeighbor, q_model, p_test, 16);
+for f = 2:fNum
+    template = frames(:,:,:,f-1);
+    img2 = frames(:,:,:,f);
     
-    xResult = 0;
-    yResult = 0;
-    [num,~] = size(testNeighbor);
-    for r = 1:num
-        xResult = xResult + testNeighbor(r, 1) * w(r, 1);
-        yResult = yResult + testNeighbor(r, 2) * w(r, 1);
+    modelNeighbor = circularNeighbors(template, x0, y0, radius);
+    q_model = colorHistogram(modelNeighbor, 16, x0, y0, radius);
+    
+    mstFrames(:,:,:,f-1) = insertShape(template, 'circle', [x0 y0 radius], 'LineWidth', 5);
+    filename = sprintf('MSTFrames/frame%d.png', f-1);
+    imwrite(uint8(mstFrames(:,:,:,f-1)), filename);
+    for i = 1:15    
+        testNeighbor = circularNeighbors(img2, x0, y0, radius);
+        p_test = colorHistogram(testNeighbor, 16, x0, y0, radius);
+        w = meanshiftWeights(testNeighbor, q_model, p_test, 16);
+
+        xResult = 0;
+        yResult = 0;
+        [num,~] = size(testNeighbor);
+        for r = 1:num
+            xResult = xResult + testNeighbor(r, 1) * w(r, 1);
+            yResult = yResult + testNeighbor(r, 2) * w(r, 1);
+        end
+
+        x0 = xResult / sum(w, 'all');
+        y0 = yResult / sum(w, 'all');
     end
-
-    x0 = xResult / sum(w, 'all');
-    y0 = yResult / sum(w, 'all');
 end
-lastXY = [x0 y0];
-disp(lastXY);
-
-subplot(1,2,2);
-imagesc(img2);
-axis('equal');
-hold on;
-viscircles(lastXY, radius);
-hold off;
+% lastXY = [x0 y0];
+% disp(lastXY);
+% 
+% subplot(1,2,2);
+% imagesc(img2);
+% axis('equal');
+% hold on;
+% viscircles(lastXY, radius);
+% hold off;
 
 
 
