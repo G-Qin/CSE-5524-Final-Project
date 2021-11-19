@@ -1,6 +1,5 @@
 % Mean-shift tracking
-% template = frames(:,:,:,1);
-% img2 = frames(:,:,:,2);
+
 mstFrames = zeros(size(frames));
 % The starting point and size need to be determined manually
 x0 = 695;
@@ -9,13 +8,6 @@ radius = 80;
 
 [row, col, ~, fNum] = size(frames);
 
-% mstFrames(:,:,:,1) = insertShape(template, 'circle', [x0 y0 radius], 'LineWidth', 5);
-% imwrite(mstFrames(:,:,:,1), 'MSTFrames/frame1.png');
-% imagesc(template);
-% axis('equal');
-% hold on;
-% viscircles([x0, y0], radius);
-% hold off;
 
 for f = 2:fNum
     template = frames(:,:,:,f-1);
@@ -31,6 +23,24 @@ for f = 2:fNum
         testNeighbor = circularNeighbors(img2, x0, y0, radius);
         p_test = colorHistogram(testNeighbor, 16, x0, y0, radius);
         w = meanshiftWeights(testNeighbor, q_model, p_test, 16);
+        
+        test_plus = circularNeighbors(img2, x0, y0, radius+1);
+        p_test_plus = colorHistogram(test_plus, 16, x0, y0, radius+1);
+        w_plus = meanshiftWeights(test_plus, q_model, p_test, 16);
+        
+        test_minus = circularNeighbors(img2, x0, y0, radius-1);
+        p_test_minus = colorHistogram(test_minus, 16, x0, y0, radius-1);
+        w_minus = meanshiftWeights(test_minus, q_model, p_test, 16);
+        
+        if mean(w_minus) > mean(w) && mean(w_minus) > mean(w_plus)
+            w = w_minus;
+            radius = radius - 1;
+            testNeighbor = test_minus;
+        elseif mean(w_plus) > mean(w) && mean(w_plus) > mean(w_minus)
+            w = w_plus;
+            radius = radius + 1;
+            testNeighbor = test_plus;
+        end
 
         xResult = 0;
         yResult = 0;
@@ -44,15 +54,6 @@ for f = 2:fNum
         y0 = yResult / sum(w, 'all');
     end
 end
-% lastXY = [x0 y0];
-% disp(lastXY);
-% 
-% subplot(1,2,2);
-% imagesc(img2);
-% axis('equal');
-% hold on;
-% viscircles(lastXY, radius);
-% hold off;
 
 
 
