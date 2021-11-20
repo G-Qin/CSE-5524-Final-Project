@@ -8,7 +8,6 @@ radius = 80;
 
 [row, col, ~, fNum] = size(frames);
 
-
 for f = 2:fNum
     template = frames(:,:,:,f-1);
     img2 = frames(:,:,:,f);
@@ -19,7 +18,7 @@ for f = 2:fNum
     mstFrames(:,:,:,f-1) = insertShape(template, 'circle', [x0 y0 radius], 'LineWidth', 5);
     filename = sprintf('MSTFrames/frame%d.png', f-1);
     imwrite(uint8(mstFrames(:,:,:,f-1)), filename);
-    for i = 1:15    
+    for i = 1:25    
         testNeighbor = circularNeighbors(img2, x0, y0, radius);
         p_test = colorHistogram(testNeighbor, 16, x0, y0, radius);
         w = meanshiftWeights(testNeighbor, q_model, p_test, 16);
