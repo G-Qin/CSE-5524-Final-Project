@@ -14,7 +14,7 @@ for f = 1:fNum
     tMeanB=mean2(template(:,:,3));
     which=1;
     %277-24+1,366-35+1
-    ncc=double(zeros((height-(templateH)/2+1)*(width-(templateW)/2+1),3));
+    ncc=double(zeros((height-(templateH)*2+1)*(width-(templateW)*2+1),3));
     for h=templateH:height-templateH+1
         for w=templateW:width-templateW+1
             this=double(bigImg(h-((templateH)/2-1):h+((templateH)/2-1),w-((templateW)/2-1):w+((templateW)/2-1),:));
