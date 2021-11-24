@@ -29,7 +29,8 @@ for f = 1:fNum
     w1=ssd(1,3);
     ssdFrames(:,:,:,f) = insertShape(ssdFrames(:,:,:,f), 'rectangle', [w1-(templateW+1)/2-1 h1-(templateH+1)/2-1 templateW templateH], 'LineWidth', 5);
     filename = sprintf('SSDFrames/frame%d.png', f);
-    imwrite(uint8(ssdFrames(:,:,:,f)), filename);
+    blurIm=blur(ssdFrames(:,:,:,f),h1,w1,100);
+    imwrite(uint8(blurIm), filename);
 end
 
 
