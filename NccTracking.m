@@ -46,7 +46,9 @@ for f = 1:fNum
     w1=ncc(1,3);
     nccFrames(:,:,:,f) = insertShape(nccFrames(:,:,:,f), 'rectangle', [w1-(templateW+1)/2-1 h1-(templateH+1)/2-1 templateW templateH], 'LineWidth', 5);
     filename = sprintf('nccFrames/frame%d.png', f);
-    imwrite(uint8(nccFrames(:,:,:,f)), filename);
+    [blurIm,template]=blur(nccFrames(:,:,:,f),h1,w1,templateH,templateW);
+    imwrite(uint8(blurIm), filename);
+    
 end
 
 

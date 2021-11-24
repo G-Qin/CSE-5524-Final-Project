@@ -29,8 +29,9 @@ for f = 1:fNum
     w1=sad(1,3);
     sadFrames(:,:,:,f) = insertShape(sadFrames(:,:,:,f), 'rectangle', [w1-(templateW+1)/2-1 h1-(templateH+1)/2-1 templateW templateH], 'LineWidth', 5);
     filename = sprintf('sadFrames/frame%d.png', f);
-    blurIm=blur(sadFrames(:,:,:,f),h1,w1,100);
+    [blurIm,template]=blur(sadFrames(:,:,:,f),h1,w1,templateH,templateW);
     imwrite(uint8(blurIm), filename);
+   
 end
 
 
