@@ -6,20 +6,20 @@ templateDec = shrink(templateOri);
 [templateH,templateW,~]=size(templateOri);
 templateHI=templateH*2;
 templateWI=templateW*2;
-templateHD=templateH/2;
-templateWD=templateW/2;
+templateHD=floor(templateH/2);
+templateWD=floor(templateW/2);
 
 for f = 1:1
     % Update template after each cycle
     if f > 1
-        templateOri = double(frames(y0:y0+h, x0:x0+w, :, f-1));
+        templateOri = double(frames(y0:y0+h-1, x0:x0+w-1, :, f-1));
         templateInc = expand(templateOri);
         templateDec = shrink(templateOri);
         [templateH,templateW,~]=size(templateOri);
         templateHI=templateH*2;
         templateWI=templateW*2;
-        templateHD=templateH/2;
-        templateWD=templateW/2;
+        templateHD=floor(templateH/2);
+        templateWD=floor(templateW/2);
     end
     
     which = 1;
@@ -42,8 +42,8 @@ for f = 1:1
     w = 0;
     h = 0;
     if whichState==1
-        x0 = w1-(templateW+1)/2-1;
-        y0 = h1-(templateH+1)/2-1;
+        x0 = w1;
+        y0 = h1;
         w = templateW;
         h = templateH;
     elseif whichState==2
@@ -67,42 +67,47 @@ end
 
 function [count,ncc]=nccSort(template,which,ncc,height,width,bigImg,state)
     [templateH,templateW,~]=size(template);
-    %template sigma and mean
+    % Caculate template sigma and mean
     tSigmaR=std(template(:,:,1),0,'all');
     tSigmaG=std(template(:,:,2),0,'all');
     tSigmaB=std(template(:,:,3),0,'all');
     tMeanR=mean2(template(:,:,1));
     tMeanG=mean2(template(:,:,2));
     tMeanB=mean2(template(:,:,3));
-    %277-24+1,366-35+1
-    for h=templateH:height-templateH+1
-        for w=templateW:width-templateW+1
+
             if mod(templateH,2)==1
-                templateH=templateH-1;
+                templateH = templateH-1;
             end
             if mod(templateW,2)==1
-                templateW=templateW-1;
+                templateW = templateW-1;
             end
-            this(:,:,1)=double(bigImg(h-((templateH)/2-1):h+((templateH)/2-1),w-((templateW)/2-1):w+((templateW)/2-1),1));
-            this(:,:,2)=double(bigImg(h-((templateH)/2-1):h+((templateH)/2-1),w-((templateW)/2-1):w+((templateW)/2-1),2));
-            this(:,:,3)=double(bigImg(h-((templateH)/2-1):h+((templateH)/2-1),w-((templateW)/2-1):w+((templateW)/2-1),3));
-            %calculate sigma for bigImg
-            SigmaR=std(this(:,:,1),0,'all');
-            SigmaG=std(this(:,:,2),0,'all');
-            SigmaB=std(this(:,:,3),0,'all');
-            %calculate mean for bigImg
-            MeanR=mean2(this(:,:,1));
-            MeanG=mean2(this(:,:,2));
-            MeanB=mean2(this(:,:,3));  
+    
+    for h=1:height-templateH+1
+        for w=1:width-templateW+1
+            top = h;
+            bottom = h+templateH-1;
+            left = w;
+            right = w+templateW-1;
+            this(:,:,1) = double(bigImg(top:bottom, left:right, 1));
+            this(:,:,2) = double(bigImg(top:bottom, left:right, 2));
+            this(:,:,3) = double(bigImg(top:bottom, left:right, 3));
+            % Calculate sigma for bigImg
+            SigmaR = std(this(:,:,1),0,'all');
+            SigmaG = std(this(:,:,2),0,'all');
+            SigmaB = std(this(:,:,3),0,'all');
+            % Calculate mean for bigImg
+            MeanR = mean2(this(:,:,1));
+            MeanG = mean2(this(:,:,2));
+            MeanB = mean2(this(:,:,3));  
             temp=0;
-            for i=1:templateH-1
-                for j=1:templateW-1
-                    temp=temp+(this(i,j,1)-MeanR)*(template(i,j,1)-tMeanR)/(tSigmaR*SigmaR);
-                    temp=temp+(this(i,j,2)-MeanG)*(template(i,j,2)-tMeanG)/(tSigmaG*SigmaG);
-                    temp=temp+(this(i,j,3)-MeanB)*(template(i,j,3)-tMeanB)/(tSigmaB*SigmaB);
+            for i=1:templateH
+                for j=1:templateW
+                    temp = temp+(this(i,j,1)-MeanR)*(template(i,j,1)-tMeanR)/(tSigmaR*SigmaR);
+                    temp = temp+(this(i,j,2)-MeanG)*(template(i,j,2)-tMeanG)/(tSigmaG*SigmaG);
+                    temp = temp+(this(i,j,3)-MeanB)*(template(i,j,3)-tMeanB)/(tSigmaB*SigmaB);
                 end
             end
-            %47*69-1 (n-1)
+            disp(state);
             ncc(which,1)=temp/(templateH*templateW-1);
             ncc(which,2)=h;
             ncc(which,3)=w;

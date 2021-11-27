@@ -2,19 +2,19 @@ nccFrames = frames;
 [height, width, ~, fNum] = size(frames);
 templateOri = double(imread('template.png'));
 templateInc = expand(templateOri);
-templateDec = shirnk(templateOri);
+templateDec = shrink(templateOri);
 [templateH,templateW,~]=size(templateOri);
 templateHI=templateH*2;
 templateWI=templateW*2;
 templateHD=templateH/2;
 templateWD=templateW/2;
 
-for f = 1:fNum
+for f = 1:1
     % Update template after each cycle
     if f > 1
-        templateOri = double(imread('template.png'));
+        templateOri = double(frames(y0:y0+h, x0:x0+w, :, f-1));
         templateInc = expand(templateOri);
-        templateDec = shirnk(templateOri);
+        templateDec = shrink(templateOri);
         [templateH,templateW,~]=size(templateOri);
         templateHI=templateH*2;
         templateWI=templateW*2;
@@ -23,7 +23,7 @@ for f = 1:fNum
     end
     
     which = 1;
-    ncc=double(zeros((height-(templateH)*2+1)*(width-(templateW)*2+1)+(height-(templateHI)*2+1)*(width-(templateWI)*2+1)+(height-(templateHD)*2+1)*(width-(templateWD)*2+1),3));
+    ncc=double(zeros((height-templateH+1)*(width-templateW+1)+(height-templateHI+1)*(width-templateWI+1)+(height-templateHD+1)*(width-templateWD+1),3));
     bigImg = frames(:,:,:,f);
     state=1;
     [which,ncc]=nccSort(templateOri,which,ncc,height,width,bigImg,state);
@@ -31,6 +31,7 @@ for f = 1:fNum
     [which,ncc]=nccSort(templateDec,which,ncc,height,width,bigImg,state);
     state=3;
     [which,ncc]=nccSort(templateInc,which,ncc,height,width,bigImg,state);
+
     maxNcc=findMax(ncc);
     h1=maxNcc(1,2);
     w1=maxNcc(1,3);
@@ -51,14 +52,14 @@ for f = 1:fNum
         w = templateWD;
         h = templateHD;
     else
-        nccFrames(:,:,:,f) = insertShape(nccFrames(:,:,:,f), 'rectangle', [w1-(templateWI+1)/2-1 h1-(templateHI+1)/2-1 templateWI templateHI], 'LineWidth', 5);
-        filename = sprintf('nccFrames/frame%d.png', f);
-        [blurIm,template]=blur(nccFrames(:,:,:,f),h1,w1,templateHI,templateWI);
-        imwrite(uint8(blurIm), filename);
+        x0 = w1-(templateWI+1)/2-1;
+        y0 = h1-(templateHI+1)/2-1;
+        w = templateWI;
+        h = templateHI;
     end
     nccFrames(:,:,:,f) = insertShape(nccFrames(:,:,:,f), 'rectangle', [x0 y0 w h], 'LineWidth', 5);
     filename = sprintf('nccFrames/frame%d.png', f);
-    [blurIm,template]=blur(nccFrames(:,:,:,f),h1,w1,h,w);
+    [blurIm]=blur(nccFrames(:,:,:,f),h1,w1,floor(h/2),floor(w/2));
     imwrite(uint8(blurIm), filename);
     
     disp(maxNcc(1,1));
@@ -66,42 +67,47 @@ end
 
 function [count,ncc]=nccSort(template,which,ncc,height,width,bigImg,state)
     [templateH,templateW,~]=size(template);
-    %template sigma and mean
+    % Caculate template sigma and mean
     tSigmaR=std(template(:,:,1),0,'all');
     tSigmaG=std(template(:,:,2),0,'all');
     tSigmaB=std(template(:,:,3),0,'all');
     tMeanR=mean2(template(:,:,1));
     tMeanG=mean2(template(:,:,2));
     tMeanB=mean2(template(:,:,3));
-    %277-24+1,366-35+1
-    for h=templateH:height-templateH+1
-        for w=templateW:width-templateW+1
+
             if mod(templateH,2)==1
-                templateH=templateH-1;
+                templateH = templateH-1;
             end
             if mod(templateW,2)==1
-                templateW=templateW-1;
+                templateW = templateW-1;
             end
-            this(:,:,1)=double(bigImg(h-((templateH)/2-1):h+((templateH)/2-1),w-((templateW)/2-1):w+((templateW)/2-1),1));
-            this(:,:,2)=double(bigImg(h-((templateH)/2-1):h+((templateH)/2-1),w-((templateW)/2-1):w+((templateW)/2-1),2));
-            this(:,:,3)=double(bigImg(h-((templateH)/2-1):h+((templateH)/2-1),w-((templateW)/2-1):w+((templateW)/2-1),3));
-            %calculate sigma for bigImg
-            SigmaR=std(this(:,:,1),0,'all');
-            SigmaG=std(this(:,:,2),0,'all');
-            SigmaB=std(this(:,:,3),0,'all');
-            %calculate mean for bigImg
-            MeanR=mean2(this(:,:,1));
-            MeanG=mean2(this(:,:,2));
-            MeanB=mean2(this(:,:,3));  
+    
+    for h=templateH:height-templateH+1
+        for w=templateW:width-templateW+1
+            top = h-(floor(templateH/2));
+            bottom = h+(floor(templateH/2));
+            left = w-(floor(templateW/2));
+            right = w+(floor(templateW/2));
+            this(:,:,1) = double(bigImg(top:bottom, left:right, 1));
+            this(:,:,2) = double(bigImg(top:bottom, left:right, 2));
+            this(:,:,3) = double(bigImg(top:bottom, left:right, 3));
+            % Calculate sigma for bigImg
+            SigmaR = std(this(:,:,1),0,'all');
+            SigmaG = std(this(:,:,2),0,'all');
+            SigmaB = std(this(:,:,3),0,'all');
+            % Calculate mean for bigImg
+            MeanR = mean2(this(:,:,1));
+            MeanG = mean2(this(:,:,2));
+            MeanB = mean2(this(:,:,3));  
             temp=0;
-            for i=1:templateH-1
-                for j=1:templateW-1
-                    temp=temp+(this(i,j,1)-MeanR)*(template(i,j,1)-tMeanR)/(tSigmaR*SigmaR);
-                    temp=temp+(this(i,j,2)-MeanG)*(template(i,j,2)-tMeanG)/(tSigmaG*SigmaG);
-                    temp=temp+(this(i,j,3)-MeanB)*(template(i,j,3)-tMeanB)/(tSigmaB*SigmaB);
+            for i=1:templateH
+                for j=1:templateW
+                    temp = temp+(this(i,j,1)-MeanR)*(template(i,j,1)-tMeanR)/(tSigmaR*SigmaR);
+                    temp = temp+(this(i,j,2)-MeanG)*(template(i,j,2)-tMeanG)/(tSigmaG*SigmaG);
+                    temp = temp+(this(i,j,3)-MeanB)*(template(i,j,3)-tMeanB)/(tSigmaB*SigmaB);
                 end
             end
-            %47*69-1 (n-1)
+            disp(state);
             ncc(which,1)=temp/(templateH*templateW-1);
             ncc(which,2)=h;
             ncc(which,3)=w;
