@@ -8,29 +8,32 @@ templateHI=templateH*2;
 templateWI=templateW*2;
 templateHD=floor(templateH/2);
 templateWD=floor(templateW/2);
+% Template position needs to be determined manually at the first frame
+tempPos = [135, 605];
 
-for f = 1:1
+for f = 1:fNum
     % Update template after each cycle
-    if f > 1
-        templateOri = double(frames(y0:y0+h-1, x0:x0+w-1, :, f-1));
-        templateInc = expand(templateOri);
-        templateDec = shrink(templateOri);
-        [templateH,templateW,~]=size(templateOri);
-        templateHI=templateH*2;
-        templateWI=templateW*2;
-        templateHD=floor(templateH/2);
-        templateWD=floor(templateW/2);
-    end
+%     if f > 1
+%         templateOri = double(frames(y0:y0+h-1, x0:x0+w-1, :, f-1));
+%         templateInc = expand(templateOri);
+%         templateDec = shrink(templateOri);
+%         [templateH,templateW,~]=size(templateOri);
+%         templateHI=templateH*2;
+%         templateWI=templateW*2;
+%         templateHD=floor(templateH/2);
+%         templateWD=floor(templateW/2);
+%         tempPos = [y0,x0];
+%     end
     
     which = 1;
     ncc=double(zeros((height-templateH+1)*(width-templateW+1)+(height-templateHI+1)*(width-templateWI+1)+(height-templateHD+1)*(width-templateWD+1),3));
     bigImg = frames(:,:,:,f);
     state=1;
-    [which,ncc]=nccSort(templateOri,which,ncc,height,width,bigImg,state);
+    [which,ncc]=nccSort(templateOri,which,ncc,height,width,bigImg,state,tempPos);
     state=2;
-    [which,ncc]=nccSort(templateDec,which,ncc,height,width,bigImg,state);
+    [which,ncc]=nccSort(templateDec,which,ncc,height,width,bigImg,state,tempPos);
     state=3;
-    [which,ncc]=nccSort(templateInc,which,ncc,height,width,bigImg,state);
+    [which,ncc]=nccSort(templateInc,which,ncc,height,width,bigImg,state,tempPos);
 
     maxNcc=findMax(ncc);
     h1=maxNcc(1,2);
@@ -65,7 +68,7 @@ for f = 1:1
     disp(maxNcc(1,1));
 end
 
-function [count,ncc]=nccSort(template,which,ncc,height,width,bigImg,state)
+function [count,ncc]=nccSort(template, which, ncc, height, width, bigImg, state, tempPos)
     [templateH,templateW,~]=size(template);
     % Caculate template sigma and mean
     tSigmaR=std(template(:,:,1),0,'all');
@@ -75,15 +78,18 @@ function [count,ncc]=nccSort(template,which,ncc,height,width,bigImg,state)
     tMeanG=mean2(template(:,:,2));
     tMeanB=mean2(template(:,:,3));
 
-            if mod(templateH,2)==1
-                templateH = templateH-1;
-            end
-            if mod(templateW,2)==1
-                templateW = templateW-1;
-            end
-    
-    for h=1:height-templateH+1
-        for w=1:width-templateW+1
+%             if mod(templateH,2)==1
+%                 templateH = templateH-1;
+%             end
+%             if mod(templateW,2)==1
+%                 templateW = templateW-1;
+%             end
+    rmin = max(1,tempPos(1,1)-50);
+    rmax = min(height-templateH+1, tempPos(1,1)+50);
+    cmin = max(1,tempPos(1,2)-50);
+    cmax = min(width-templateW+1, tempPos(1,2)+50);
+    for h = rmin:rmax
+        for w = cmin:cmax
             top = h;
             bottom = h+templateH-1;
             left = w;
@@ -107,7 +113,6 @@ function [count,ncc]=nccSort(template,which,ncc,height,width,bigImg,state)
                     temp = temp+(this(i,j,3)-MeanB)*(template(i,j,3)-tMeanB)/(tSigmaB*SigmaB);
                 end
             end
-            disp(state);
             ncc(which,1)=temp/(templateH*templateW-1);
             ncc(which,2)=h;
             ncc(which,3)=w;
