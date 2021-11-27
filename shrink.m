@@ -3,8 +3,8 @@ function result = shrink(I)
 [h,w,~]= size(I);
 
 %make the smaller column and row
-hSmall = ceil(h /2);
-wSmall = ceil(w /2);
+hSmall = floor(h /2);
+wSmall = floor(w /2);
 result=double(zeros(hSmall, wSmall,3));
 for i=1:hSmall
     for j=1:wSmall

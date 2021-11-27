@@ -38,19 +38,19 @@ for f = 1:fNum
         imwrite(uint8(covFrames(:,:,:,f-1)), filename);
         
         % Update the template
-%         template = frames(sR:sR+tRow, sC:sC+tCol,:,f-1);
-%         tempMatrix = zeros(tRow * tCol, 5);
-%         rowCount = 0;
-%         for r = 1:tRow
-%             for c = 1:tCol
-%                 rowCount = rowCount + 1;
-%                 tempMatrix(rowCount, 1) = c;
-%                 tempMatrix(rowCount, 2) = r;
-%                 tempMatrix(rowCount, 3) = template(r,c,1);
-%                 tempMatrix(rowCount, 4) = template(r,c,2);
-%                 tempMatrix(rowCount, 5) = template(r,c,3);
-%             end
-%         end
+        template = frames(sR:sR+tRow, sC:sC+tCol,:,f-1);
+        tempMatrix = zeros(tRow * tCol, 5);
+        rowCount = 0;
+        for r = 1:tRow
+            for c = 1:tCol
+                rowCount = rowCount + 1;
+                tempMatrix(rowCount, 1) = c;
+                tempMatrix(rowCount, 2) = r;
+                tempMatrix(rowCount, 3) = template(r,c,1);
+                tempMatrix(rowCount, 4) = template(r,c,2);
+                tempMatrix(rowCount, 5) = template(r,c,3);
+            end
+        end
     end
  
     
