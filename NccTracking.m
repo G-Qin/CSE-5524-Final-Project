@@ -9,7 +9,7 @@ templateWI=templateW*2;
 templateHD=templateH/2;
 templateWD=templateW/2;
 
-for f = 1:fNum
+for f = 1:1
     % Update template after each cycle
     if f > 1
         templateOri = double(frames(y0:y0+h, x0:x0+w, :, f-1));
@@ -23,7 +23,7 @@ for f = 1:fNum
     end
     
     which = 1;
-    ncc=double(zeros((height-(templateH)*2+1)*(width-(templateW)*2+1)+(height-(templateHI)*2+1)*(width-(templateWI)*2+1)+(height-(templateHD)*2+1)*(width-(templateWD)*2+1),3));
+    ncc=double(zeros((height-templateH+1)*(width-templateW+1)+(height-templateHI+1)*(width-templateWI+1)+(height-templateHD+1)*(width-templateWD+1),3));
     bigImg = frames(:,:,:,f);
     state=1;
     [which,ncc]=nccSort(templateOri,which,ncc,height,width,bigImg,state);
@@ -31,6 +31,7 @@ for f = 1:fNum
     [which,ncc]=nccSort(templateDec,which,ncc,height,width,bigImg,state);
     state=3;
     [which,ncc]=nccSort(templateInc,which,ncc,height,width,bigImg,state);
+
     maxNcc=findMax(ncc);
     h1=maxNcc(1,2);
     w1=maxNcc(1,3);
@@ -58,7 +59,7 @@ for f = 1:fNum
     end
     nccFrames(:,:,:,f) = insertShape(nccFrames(:,:,:,f), 'rectangle', [x0 y0 w h], 'LineWidth', 5);
     filename = sprintf('nccFrames/frame%d.png', f);
-    [blurIm,template]=blur(nccFrames(:,:,:,f),h1,w1,h,w);
+    [blurIm]=blur(nccFrames(:,:,:,f),h1,w1,floor(h/2),floor(w/2));
     imwrite(uint8(blurIm), filename);
     
     disp(maxNcc(1,1));

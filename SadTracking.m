@@ -58,7 +58,7 @@ for f = 1:fNum
     end
     sadFrames(:,:,:,f) = insertShape(sadFrames(:,:,:,f), 'rectangle', [x0 y0 w h], 'LineWidth', 5);
     filename = sprintf('sadFrames/frame%d.png', f);
-    [blurIm,template]=blur(sadFrames(:,:,:,f),h1,w1,h,w);
+    [blurIm]=blur(sadFrames(:,:,:,f),h1,w1,floor(h/2),floor(w/2));
     imwrite(uint8(blurIm), filename);
    
 end
@@ -91,4 +91,3 @@ function [count,sad]=sadSort(template,which,sad,height,width,bigImg,state)
     end
     count=which;
 end
-
