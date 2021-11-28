@@ -13,17 +13,17 @@ tempPos = [135, 605];
 
 for f = 1:fNum
     % Update template after each cycle
-%     if f > 1
-%         templateOri = double(frames(y0:y0+h-1, x0:x0+w-1, :, f-1));
-%         templateInc = expand(templateOri);
-%         templateDec = shrink(templateOri);
-%         [templateH,templateW,~]=size(templateOri);
-%         templateHI=templateH*2;
-%         templateWI=templateW*2;
-%         templateHD=floor(templateH/2);
-%         templateWD=floor(templateW/2);
-%         tempPos = [y0,x0];
-%     end
+    if f > 1
+        templateOri = double(frames(y0:y0+h-1, x0:x0+w-1, :, f-1));
+        templateInc = expand(templateOri);
+        templateDec = shrink(templateOri);
+        [templateH,templateW,~]=size(templateOri);
+        templateHI=templateH*2;
+        templateWI=templateW*2;
+        templateHD=floor(templateH/2);
+        templateWD=floor(templateW/2);
+        tempPos = [y0,x0];
+    end
     
     which = 1;
     ncc=double(zeros((height-templateH+1)*(width-templateW+1)+(height-templateHI+1)*(width-templateWI+1)+(height-templateHD+1)*(width-templateWD+1),3));
@@ -62,7 +62,7 @@ for f = 1:fNum
     end
     nccFrames(:,:,:,f) = insertShape(nccFrames(:,:,:,f), 'rectangle', [x0 y0 w h], 'LineWidth', 5);
     filename = sprintf('nccFrames/frame%d.png', f);
-    [blurIm]=blur(nccFrames(:,:,:,f),h1,w1,floor(h/2),floor(w/2));
+    [blurIm]=averageFiltering(nccFrames(:,:,:,f),h1,w1,floor(h/2),floor(w/2));
     imwrite(uint8(blurIm), filename);
     
     disp(maxNcc(1,1));
