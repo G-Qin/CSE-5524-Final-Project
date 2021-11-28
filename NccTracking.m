@@ -50,13 +50,13 @@ for f = 1:fNum
         w = templateW;
         h = templateH;
     elseif whichState==2
-        x0 = w1-(templateWD+1)/2-1;
-        y0 = h1-(templateHD+1)/2-1;
+        x0 = w1;
+        y0 = h1;
         w = templateWD;
         h = templateHD;
     else
-        x0 = w1-(templateWI+1)/2-1;
-        y0 = h1-(templateHI+1)/2-1;
+        x0 = w1;
+        y0 = h1;
         w = templateWI;
         h = templateHI;
     end
