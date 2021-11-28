@@ -2,7 +2,7 @@
 template = imread('template.png');
 [tRow, tCol, ~] = size(template);
 % Start coordinates need to be determined manually
-startCoord = [135, 605];
+startCoord = [113, 221];
 
 tempMatrix = zeros(tRow * tCol, 5);
 rowCount = 0;

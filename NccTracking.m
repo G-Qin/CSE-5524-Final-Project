@@ -9,7 +9,7 @@ templateWI=templateW*2;
 templateHD=floor(templateH/2);
 templateWD=floor(templateW/2);
 % Template position needs to be determined manually at the first frame
-tempPos = [135, 605];
+tempPos = [113, 221];
 
 for f = 1:fNum
     % Update template after each cycle
@@ -62,8 +62,8 @@ for f = 1:fNum
     end
     nccFrames(:,:,:,f) = insertShape(nccFrames(:,:,:,f), 'rectangle', [x0 y0 w h], 'LineWidth', 5);
     filename = sprintf('nccFrames/frame%d.png', f);
-    [blurIm]=averageFiltering(nccFrames(:,:,:,f),h1,w1,floor(h/2),floor(w/2));
-    imwrite(uint8(blurIm), filename);
+    %[blurIm]=averageFiltering(nccFrames(:,:,:,f),h1,w1,floor(h/2),floor(w/2));
+    imwrite(uint8(nccFrames(:,:,:,f)), filename);
     
     disp(maxNcc(1,1));
 end
@@ -78,12 +78,6 @@ function [count,ncc]=nccSort(template, which, ncc, height, width, bigImg, state,
     tMeanG=mean2(template(:,:,2));
     tMeanB=mean2(template(:,:,3));
 
-%             if mod(templateH,2)==1
-%                 templateH = templateH-1;
-%             end
-%             if mod(templateW,2)==1
-%                 templateW = templateW-1;
-%             end
     rmin = max(1,tempPos(1,1)-50);
     rmax = min(height-templateH+1, tempPos(1,1)+50);
     cmin = max(1,tempPos(1,2)-50);

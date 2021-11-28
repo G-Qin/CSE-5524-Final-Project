@@ -2,9 +2,9 @@
 
 mstFrames = zeros(size(frames));
 % The starting point and size need to be determined manually
-x0 = 695;
-y0 = 235;
-radius = 80;
+x0 = 298;
+y0 = 213;
+radius = 95;
 
 [row, col, ~, fNum] = size(frames);
 
@@ -15,9 +15,11 @@ for f = 2:fNum
     modelNeighbor = circularNeighbors(template, x0, y0, radius);
     q_model = colorHistogram(modelNeighbor, 16, x0, y0, radius);
     
-    mstFrames(:,:,:,f-1) = insertShape(template, 'circle', [x0 y0 radius], 'LineWidth', 5);
+    mstFrames(:,:,:,f-1) = insertShape(frames(:,:,:,f-1), 'circle', [x0 y0 radius], 'LineWidth', 5);
+    [blurIm] = medianFiltering(mstFrames(:,:,:,f-1),y0-radius,x0-radius,radius,radius);
     filename = sprintf('MSTFrames/frame%d.png', f-1);
-    imwrite(uint8(mstFrames(:,:,:,f-1)), filename);
+    disp(f-1);
+    imwrite(uint8(blurIm), filename);
     for i = 1:25    
         testNeighbor = circularNeighbors(img2, x0, y0, radius);
         p_test = colorHistogram(testNeighbor, 16, x0, y0, radius);

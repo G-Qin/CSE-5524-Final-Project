@@ -9,7 +9,7 @@ templateWI=templateW*2;
 templateHD=floor(templateH/2);
 templateWD=floor(templateW/2);
 % Template position needs to be determined manually at the first frame
-tempPos = [135, 605];
+tempPos = [113, 221];
 
 for f = 1:fNum
     % Update template after each cycle
@@ -67,8 +67,8 @@ for f = 1:fNum
     end
     ssdFrames(:,:,:,f) = insertShape(ssdFrames(:,:,:,f), 'rectangle', [x0 y0 w h], 'LineWidth', 5);
     filename = sprintf('ssdFrames/frame%d.png', f);
-    [blurIm]=blur(ssdFrames(:,:,:,f),h1,w1,floor(h/2),floor(w/2));
-    imwrite(uint8(blurIm), filename);
+    %[blurIm]=blur(ssdFrames(:,:,:,f),h1,w1,floor(h/2),floor(w/2));
+    imwrite(uint8(ssdFrames(:,:,:,f)), filename);
    
 end
 function [count,ssd]=ssdSort(template,which,ssd,height,width,bigImg,state,tempPos)
