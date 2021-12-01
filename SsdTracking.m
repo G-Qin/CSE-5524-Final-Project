@@ -69,7 +69,7 @@ for f = 1:fNum
     filename = sprintf('ssdFrames/frame%d.png', f);
     %[blurIm]=blur(ssdFrames(:,:,:,f),h1,w1,floor(h/2),floor(w/2));
     imwrite(uint8(ssdFrames(:,:,:,f)), filename);
-   
+    disp(f);
 end
 function [count,ssd]=ssdSort(template,which,ssd,height,width,bigImg,state,tempPos)
     [templateH,templateW,~]=size(template);

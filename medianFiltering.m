@@ -10,6 +10,7 @@ function [output]=medianFiltering(image,y,x,radiusy,radiusx)
     output(top:bot, left:right, :)=blurIm;
 
 % For efficiency we used the fspecial to generate the mask in the end
+%     blurIm = double(zeros(size(template)));
 %     for j=top:bot
 %         for i=left:right
 %             A=zeros(21,21,1);

@@ -32,7 +32,7 @@ for f = 1:fNum
     sC = startCoord(1,2);
     if f > 1
         % Save previous tracking image
-        disp(startCoord);
+        disp(f);
         covFrames(:,:,:,f-1) = insertShape(frames(:,:,:,f-1), 'rectangle', [sC sR tCol tRow], 'LineWidth', 5);
         filename = sprintf('CovFrames/frame%d.png', f-1);
         imwrite(uint8(covFrames(:,:,:,f-1)), filename);

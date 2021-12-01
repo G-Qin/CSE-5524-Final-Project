@@ -65,7 +65,7 @@ for f = 1:fNum
     %[blurIm]=averageFiltering(nccFrames(:,:,:,f),h1,w1,floor(h/2),floor(w/2));
     imwrite(uint8(nccFrames(:,:,:,f)), filename);
     
-    disp(maxNcc(1,1));
+    disp(f);
 end
 
 function [count,ncc]=nccSort(template, which, ncc, height, width, bigImg, state, tempPos)
